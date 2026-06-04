@@ -20,6 +20,20 @@ BASE_DIR = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
 
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+LOG_FILE = os.path.join(LOG_DIR, "events.csv")
+
+os.makedirs(LOG_DIR, exist_ok=True)
+
+if not os.path.exists(LOG_FILE):
+    pd.DataFrame(
+        columns=[
+            "Timestamp",
+            "Failure_Probability",
+            "Status"
+        ]
+    ).to_csv(LOG_FILE, index=False)
+
 #Page Configuration
 st.set_page_config(page_title="Oilfield Predictive Maintenance System", layout="wide")
 #title
@@ -378,8 +392,8 @@ prediction_placeholder.metric(
 event_placeholder = st.empty()
     
 st.metric(label = "Equipment Health Score", value=f"{health_score:.1f}%")
-if os.path.exists("logs/events.csv"):
-    logs_df = pd.read_csv("logs/events.csv")
+if os.path.exists(LOG_FILE):
+    logs_df = pd.read_csv(LOG_FILE)
     critical_count = len(logs_df[logs_df["Status"] == "CRITICAL"])
     warning_count = len(logs_df[logs_df["Status"] == "WARNING"])
     col1, col2 = st.columns(2)
@@ -431,7 +445,7 @@ fig = go.Figure(go.Indicator(
 st.plotly_chart(fig, width="stretch")
     
 #Failure probability trend chart
-logs_df = pd.read_csv("logs/events.csv")
+logs_df = pd.read_csv(LOG_FILE)
 
 st.subheader("Failure Probability Trend")
 
@@ -618,10 +632,8 @@ if status != "NORMAL":
         "Status": status
     }])
 
-    os.makedirs("logs", exist_ok=True)
-
-    if os.path.exists("logs/events.csv"):
-        old_events = pd.read_csv("logs/events.csv")
+    if os.path.exists(LOG_FILE):
+        old_events = pd.read_csv(LOG_FILE)
         updated_events = pd.concat(
             [old_events, new_event],
             ignore_index=True
@@ -629,10 +641,7 @@ if status != "NORMAL":
     else:
         updated_events = new_event
 
-    updated_events.to_csv(
-        "logs/events.csv",
-        index=False
-    )
+    updated_events.to_csv(LOG_FILE, index=False)
     
 #creating a virtual representation of the equipment(Digital Twin)
 st.write("Virtual Asset State")
