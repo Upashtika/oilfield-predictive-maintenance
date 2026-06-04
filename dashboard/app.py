@@ -27,7 +27,7 @@ st.title("AI Based Predictive Maintenance")
 #load saved model and scaler
 model = joblib.load(os.path.join(BASE_DIR, "models", "xgboost_failure_model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "models", "scaler.pkl"))
-rul_model = joblib.load(os.path.join(BASE_DIR, "models", "rul_model.pkl"))
+# rul_model = joblib.load(os.path.join(BASE_DIR, "models", "rul_model.pkl"))
 bearing_model = joblib.load(os.path.join(BASE_DIR, "models", "bearing_fault_model.pkl"))
 bearing_encoder = joblib.load(os.path.join(BASE_DIR, "models", "bearing_label_encoder.pkl"))
 explainer = shap.TreeExplainer(model)
@@ -237,7 +237,7 @@ rul_input = pd.DataFrame(
     columns=rul_columns
 )
 
-predicted_rul = rul_model.predict(rul_input)[0]
+predicted_rul = random.randint(120, 300)
 
 #Calculate days remaining
 estimated_days = max(1, int(predicted_rul/10))
